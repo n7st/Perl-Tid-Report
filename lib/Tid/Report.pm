@@ -6,16 +6,18 @@ use warnings;
 
 use Data::Printer;
 
-our $VERSION = "0.01";
-
 use base "Tid";
+
+use constant { "TOTAL_KEY" => "_total" };
+
+our $VERSION = "0.01";
 
 sub timesheet {
     my $self = shift;
     my $args = shift || {};
 
-    my %long_timesheet  = (_total => 0);
-    my %short_timesheet = (_total => 0);
+    my %long_timesheet  = ($self->TOTAL_KEY => 0);
+    my %short_timesheet = ($self->TOTAL_KEY => 0);
     my $active_workspace_name;
 
     foreach my $workspace (@{$self->{workspaces}}) {
@@ -27,30 +29,65 @@ sub timesheet {
 
         if ($long) {
             $long_timesheet{$workspace->{name}} = $long;
-            $long_timesheet{_total} += $long->{_total};
+            $long_timesheet{$self->TOTAL_KEY} += $long->{$self->TOTAL_KEY};
         }
 
         if ($short) {
             $short_timesheet{$workspace->{name}} = $short;
-            $short_timesheet{_total} += $short->{_total};
+            $short_timesheet{$self->TOTAL_KEY} += $short->{$self->TOTAL_KEY};
         }
     }
 
-    if ($active_workspace_name) {
-        # Return to the originally active workspace
-        $self->cmd([ "workspace", "switch", $active_workspace_name ]);
+    $self->_resume($active_workspace_name);
+
+    if ($args->{format} && lc $args->{format} eq "long") {
+        return $self->_pretty_print_long(\%long_timesheet);
+    } else {
+        return $self->_pretty_print_short(\%short_timesheet);
+    }
+}
+
+sub _pretty_print_short {
+    my $self      = shift;
+    my $timesheet = shift;
+
+    my $output;
+
+    foreach my $workspace (sort keys %{$timesheet}) {
+        next if $workspace eq $self->TOTAL_KEY;
+
+        my $total_seconds = $timesheet->{$workspace}->{$self->TOTAL_KEY};
+        my $total         = $self->_convert_seconds_to_date_str($total_seconds);
+
+        $output .= sprintf("Project: %s (Total: %s)\n",
+            $workspace,
+            $total,
+        );
+
+        foreach my $entry (keys %{$timesheet->{$workspace}}) {
+            next if $entry eq $self->TOTAL_KEY;
+
+            $output .= sprintf("    - %s: %s\n",
+                $entry,
+                $self->_convert_seconds_to_date_str($timesheet->{$workspace}->{$entry}),
+            );
+        }
     }
 
-    if ($self->{active_task}) {
-        printf STDOUT "Resuming %s", $self->{active_task};
-        # If there was an active task when the report started, resume it
-        $self->cmd([ "resume", $self->{active_task} ]);
-    }
+    $output .= sprintf("\nTotal: %s\n",
+        $self->_convert_seconds_to_date_str($timesheet->{$self->TOTAL_KEY}),
+    );
 
-    p %short_timesheet;
-    p %long_timesheet;
+    return $output;
+}
 
-    return 1;
+sub _pretty_print_long {
+    my $self      = shift;
+    my $timesheet = shift;
+
+    my $output;
+
+    return $output;
 }
 
 sub _report {
@@ -65,9 +102,7 @@ sub _report {
 
     return unless $success;
 
-    my @command = (
-        "report", "--no-summary", "-f={{.Timesheet}}/{{.Note}}/{{.Duration}}",
-    );
+    my @command = ("report", "--no-summary", "-f={{.Timesheet}}/{{.Note}}/{{.Duration}}");
 
     push @command, sprintf("-s=%s") if $args->{start};
     push @command, sprintf("-e=%s") if $args->{end};
@@ -80,18 +115,18 @@ sub _report {
         my ($date, $note, $duration) = split "/", $entry;
         my $duration_in_seconds = $self->_convert_date_str_seconds($duration);
 
-        $short{$note}          ||= 0;
-        $long{$date}->{$note}  ||= 0;
-        $long{$date}->{_total} ||= 0;
+        $short{$note}                    ||= 0;
+        $long{$date}->{$note}            ||= 0;
+        $long{$date}->{$self->TOTAL_KEY} ||= 0;
 
-        $short{$note}          += $duration_in_seconds;
-        $long{$date}->{$note}  += $duration_in_seconds;
-        $long{$date}->{_total} += $duration_in_seconds;
-        $total                 += $duration_in_seconds;
+        $short{$note}                    += $duration_in_seconds;
+        $long{$date}->{$note}            += $duration_in_seconds;
+        $long{$date}->{$self->TOTAL_KEY} += $duration_in_seconds;
+        $total                           += $duration_in_seconds;
     }
 
-    $short{_total} = $total;
-    $long{_total}  = $total;
+    $short{$self->TOTAL_KEY} = $total;
+    $long{$self->TOTAL_KEY}  = $total;
 
     return (\%long, \%short);
 }
@@ -101,7 +136,7 @@ __END__
 
 =head1 NAME
 
-Tid::Report - The great new Tid::Report!
+Tid::Report - Timesheet reports across multiple Tid workspaces.
 
 =head1 VERSION
 
@@ -109,19 +144,18 @@ Version 0.01
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
+Tid::Report collects data from the Tid time tracking software's workspaces and
+formats it.
 
     use Tid::Report;
 
-    my $foo = Tid::Report->new();
-    ...
+    my $tid = Tid::Report->new();
 
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+    my $output = $tid->timesheet({
+        format => "short",    # or long
+        start  => 2017-05-01, # default is today
+        end    => 2017-05-31, # default is today
+    });
 
 =head1 AUTHOR
 
@@ -138,7 +172,6 @@ automatically be notified of progress on your bug as I make changes.
 You can find documentation for this module with the perldoc command.
 
     perldoc Tid::Report
-
 
 You can also look for information at:
 
@@ -161,9 +194,6 @@ L<http://cpanratings.perl.org/d/Tid>
 L<http://search.cpan.org/dist/Tid/>
 
 =back
-
-=head1 ACKNOWLEDGEMENTS
-
 
 =head1 LICENSE AND COPYRIGHT
 

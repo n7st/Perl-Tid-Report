@@ -54,6 +54,20 @@ sub _convert_date_str_seconds {
     return $time_piece->[9];
 }
 
+sub _convert_seconds_to_date_str {
+    my $self    = shift;
+    my $seconds = shift;
+
+    my $time_piece = gmtime($seconds);
+
+    return sprintf("%dd%dh%dm%ds",
+        $time_piece->[7],
+        $time_piece->[2],
+        $time_piece->[1],
+        $time_piece->[0],
+    );
+}
+
 sub _convert_date_str_time_piece {
     my $self  = shift;
     my $input = shift;
@@ -68,6 +82,23 @@ sub _convert_date_str_time_piece {
     my $time_piece = Time::Piece->strptime($duration, "%Hh%Mm%Ss");
 
     return $time_piece;
+}
+
+sub _resume {
+    my $self                  = shift;
+    my $active_workspace_name = shift;
+
+    if ($active_workspace_name) {
+        # Return to the originally active workspace
+        $self->cmd([ "workspace", "switch", $active_workspace_name ]);
+    }
+
+    if ($self->{active_task}) {
+        # If there was an active task when the report started, resume it
+        $self->cmd([ "resume", $self->{active_task} ]);
+    }
+
+    return 1;
 }
 
 sub _workspace_information {
