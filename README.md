@@ -1,49 +1,57 @@
-Tid
+# Perl-Tid-Report
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+This library formats output from Tid (https://github.com/SeerUK/tid) across
+multiple workspaces to create Tid-wide timesheet reports (by slightly misusing
+the software).
 
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
-
-
-INSTALLATION
+# INSTALLATION
 
 To install this module, run the following commands:
 
-	perl Makefile.PL
-	make
-	make test
-	make install
+```
+    perl Makefile.PL
+    make
+    make test
+    make install
+```
 
-SUPPORT AND DOCUMENTATION
+# USAGE
+
+```perl
+    use Tid::Report;
+
+    my $tid = Tid::Report->new();
+    my $out = $tid->timesheet({ format => "long" }); 
+
+    print $out;
+```
+
+# SUPPORT AND DOCUMENTATION
 
 After installing, you can find documentation for this module with the
 perldoc command.
 
+```
     perldoc Tid
+    perldoc Tid::Report
+```
 
 You can also look for information at:
 
-    RT, CPAN's request tracker (report bugs here)
+    1. RT, CPAN's request tracker (report bugs here)
         http://rt.cpan.org/NoAuth/Bugs.html?Dist=Tid
 
-    AnnoCPAN, Annotated CPAN documentation
+    2. AnnoCPAN, Annotated CPAN documentation
         http://annocpan.org/dist/Tid
 
-    CPAN Ratings
+    3. CPAN Ratings
         http://cpanratings.perl.org/d/Tid
 
-    Search CPAN
+    4. Search CPAN
         http://search.cpan.org/dist/Tid/
 
 
-LICENSE AND COPYRIGHT
+# LICENSE AND COPYRIGHT
 
 Copyright (C) 2017 Mike Jones
 
