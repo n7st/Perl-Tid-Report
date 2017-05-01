@@ -4,8 +4,6 @@ use 5.006;
 use strict;
 use warnings;
 
-use Data::Printer;
-
 use base "Tid";
 
 use constant { "TOTAL_KEY" => "_total" };
@@ -59,19 +57,8 @@ sub _pretty_print_short {
         my $total_seconds = $timesheet->{$workspace}->{$self->TOTAL_KEY};
         my $total         = $self->_convert_seconds_to_date_str($total_seconds);
 
-        $output .= sprintf("Project: %s (Total: %s)\n",
-            $workspace,
-            $total,
-        );
-
-        foreach my $entry (keys %{$timesheet->{$workspace}}) {
-            next if $entry eq $self->TOTAL_KEY;
-
-            $output .= sprintf("    - %s: %s\n",
-                $entry,
-                $self->_convert_seconds_to_date_str($timesheet->{$workspace}->{$entry}),
-            );
-        }
+        $output .= sprintf("Project: %s (Total: %s)\n", $workspace, $total);
+        $output .= $self->_pretty_print_entries($timesheet->{$workspace});
     }
 
     $output .= sprintf("\nTotal: %s\n",
@@ -81,13 +68,76 @@ sub _pretty_print_short {
     return $output;
 }
 
+sub _pretty_print_entries {
+    my $self    = shift;
+    my $entries = shift;
+
+    my $output;
+
+    foreach my $entry (keys %{$entries}) {
+        next if $entry eq $self->TOTAL_KEY;
+
+        my $duration = $self->_convert_seconds_to_date_str($entries->{$entry});
+
+        $output .= sprintf("  - %s: %s\n", $entry, $duration);
+    }
+
+    return $output;
+}
+
 sub _pretty_print_long {
     my $self      = shift;
     my $timesheet = shift;
 
-    my $output;
+    my ($output, $last_line);
+
+    $timesheet = $self->_format_timesheet_by_date($timesheet);
+
+    foreach my $date (sort keys %{$timesheet}) {
+        if ($date eq $self->TOTAL_KEY) {
+            $last_line = sprintf("\nTotal: %s\n",
+                $self->_convert_seconds_to_date_str($timesheet->{$date}),
+            );
+        } else {
+            $output .= sprintf("Date: %s\n", $date);
+
+            foreach my $workspace (keys %{$timesheet->{$date}}) {
+                $output .= sprintf("  Project: %s\n", $workspace);
+                $output .= $self->_pretty_print_entries($timesheet->{$date}->{$workspace});
+            }
+        }
+    }
+
+    $output .= $last_line;
 
     return $output;
+}
+
+sub _format_timesheet_by_date {
+    my $self  = shift;
+    my $input = shift;
+
+    my %output = ($self->TOTAL_KEY => 0);
+
+    foreach my $workspace (keys %{$input}) {
+        next if $workspace eq $self->TOTAL_KEY;
+
+        foreach my $date (keys %{$input->{$workspace}}) {
+            next if $date eq $self->TOTAL_KEY;
+
+            foreach my $entry (keys %{$input->{$workspace}->{$date}}) {
+                my $duration = $input->{$workspace}->{$date}->{$entry};
+
+                if ($entry eq $self->TOTAL_KEY) {
+                    $output{$self->TOTAL_KEY} += $duration;
+                }
+
+                $output{$date}->{$workspace}->{$entry} = $duration;
+            }
+        }
+    }
+
+    return \%output;
 }
 
 sub _report {

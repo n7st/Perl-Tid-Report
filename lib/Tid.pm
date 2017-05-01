@@ -4,7 +4,6 @@ use 5.006;
 use strict;
 use warnings;
 
-use Data::Printer;
 use IPC::Run 'run';
 use Time::Piece;
 
@@ -139,19 +138,7 @@ Version 0.01
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
-
-    use Tid;
-
-    my $foo = Tid->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+This class provides a base for formatted multi-workspace Tid reports.
 
 =head1 AUTHOR
 
@@ -168,7 +155,6 @@ automatically be notified of progress on your bug as I make changes.
 You can find documentation for this module with the perldoc command.
 
     perldoc Tid
-
 
 You can also look for information at:
 
