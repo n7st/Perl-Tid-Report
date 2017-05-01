@@ -9,21 +9,21 @@ the software).
 To install this module, run the following commands:
 
 ```
-    perl Makefile.PL
-    make
-    make test
-    make install
+perl Makefile.PL
+make
+make test
+make install
 ```
 
 # USAGE
 
 ```perl
-    use Tid::Report;
+use Tid::Report;
 
-    my $tid = Tid::Report->new();
-    my $out = $tid->timesheet({ format => "long" }); 
+my $tid = Tid::Report->new();
+my $out = $tid->timesheet({ format => "long" }); 
 
-    print $out;
+print $out;
 ```
 
 # SUPPORT AND DOCUMENTATION
@@ -32,23 +32,23 @@ After installing, you can find documentation for this module with the
 perldoc command.
 
 ```
-    perldoc Tid
-    perldoc Tid::Report
+perldoc Tid
+perldoc Tid::Report
 ```
 
 You can also look for information at:
 
-    1. RT, CPAN's request tracker (report bugs here)
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Tid
+1. RT, CPAN's request tracker (report bugs here)
+    http://rt.cpan.org/NoAuth/Bugs.html?Dist=Tid
 
-    2. AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Tid
+2. AnnoCPAN, Annotated CPAN documentation
+    http://annocpan.org/dist/Tid
 
-    3. CPAN Ratings
-        http://cpanratings.perl.org/d/Tid
+3. CPAN Ratings
+    http://cpanratings.perl.org/d/Tid
 
-    4. Search CPAN
-        http://search.cpan.org/dist/Tid/
+4. Search CPAN
+    http://search.cpan.org/dist/Tid/
 
 
 # LICENSE AND COPYRIGHT
@@ -59,7 +59,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a
 copy of the full license at:
 
-L<http://www.perlfoundation.org/artistic_license_2_0>
+[Here](http://www.perlfoundation.org/artistic_license_2_0)
 
 Any use, modification, and distribution of the Standard or Modified
 Versions is governed by this Artistic License. By using, modifying or
