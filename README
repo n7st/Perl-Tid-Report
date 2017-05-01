@@ -1,8 +1,7 @@
 Tid::Report
 
 This library formats output from Tid (https://github.com/SeerUK/tid) across
-multiple workspaces to create Tid-wide timesheet reports (by slightly misusing
-the software).
+multiple workspaces to create Tid-wide timesheet reports.
 
 INSTALLATION
 

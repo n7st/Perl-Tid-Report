@@ -4,9 +4,9 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME             => 'Tid',
+    NAME             => 'Tid::Report',
     AUTHOR           => q{Mike Jones <mike@netsplit.org.uk>},
-    VERSION_FROM     => 'lib/Tid.pm',
+    VERSION_FROM     => 'lib/Tid/Report.pm',
     ABSTRACT         => 'Tid::Report - Multi-workspace Tid reporting',
     LICENSE          => 'artistic_2',
     PL_FILES         => {},
