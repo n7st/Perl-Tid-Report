@@ -7,7 +7,7 @@ WriteMakefile(
     NAME             => 'Tid',
     AUTHOR           => q{Mike Jones <mike@netsplit.org.uk>},
     VERSION_FROM     => 'lib/Tid.pm',
-    ABSTRACT_FROM    => 'lib/Tid.pm',
+    ABSTRACT         => 'Tid::Report - Multi-workspace Tid reporting',
     LICENSE          => 'artistic_2',
     PL_FILES         => {},
     MIN_PERL_VERSION => 5.006,
