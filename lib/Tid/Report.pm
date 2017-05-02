@@ -6,7 +6,7 @@ use warnings;
 
 use base "Tid";
 
-use constant { "TOTAL_KEY" => "_total" };
+use constant { TOTAL_KEY => "_total" };
 
 our $VERSION = "0.01";
 
@@ -154,8 +154,8 @@ sub _report {
 
     my @command = ("report", "--no-summary", "-f={{.Timesheet}}/{{.Note}}/{{.Duration}}");
 
-    push @command, sprintf("-s=%s") if $args->{start};
-    push @command, sprintf("-e=%s") if $args->{end};
+    push @command, sprintf("-s=%s", $args->{start}) if $args->{start};
+    push @command, sprintf("-e=%s", $args->{end})   if $args->{end};
 
     ($output, $success) = $self->cmd(\@command);
 
