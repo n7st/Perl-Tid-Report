@@ -15,10 +15,10 @@ sub new {
 
     $self->{location} = $args->{location} || "tid";
 
-    my ($output, $success) = $self->_active_task();
+    my $output = $self->_active_task();
 
     # "No timer to check the status of" is a successful response in Tid
-    if ($success && $output !~ /No timer to check the status of/) {
+    if ($output && $output !~ /No timer to check the status of/) {
         $self->{active_task} = $output;
     }
 
@@ -41,7 +41,14 @@ sub cmd {
 sub _active_task {
     my $self = shift;
 
-    return $self->cmd([ "status", "-f={{.ShortHash}}" ]);
+    my ($active, $code) = $self->cmd([ "status", "-f={{.ShortHash}} {{.IsRunning}}" ]);
+    my ($name, $status) = split / /, $active;
+
+    if ($status && $status eq 'true') {
+        return $name;
+    }
+
+    return undef;
 }
 
 sub _convert_date_str_seconds {
